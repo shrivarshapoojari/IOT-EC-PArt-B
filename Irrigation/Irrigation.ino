@@ -2,60 +2,81 @@
 #define BLYNK_TEMPLATE_NAME "Smart Irrigation"
 #define BLYNK_AUTH_TOKEN "u7dwOxKYgNZzGrvAYbLdZF6NAg8L1Z-i"
 
+#define BLYNK_PRINT Serial
+
 #include <WiFi.h>
-#include <BlynkSimpleEsp32.h> 
+#include <WiFiClient.h>
+#include <BlynkSimpleEsp32.h>
 
-#define SOIL_MOISTURE_PIN 34   // Analog pin for soil moisture sensor
-#define THRESHOLD_MOISTURE 100 // Threshold for soil moisture
-#define PUMP_PIN 5  // Digital pin for controlling the pump
-#define PUMP_SWITCH V6  // Virtual pin for controlling the pump manually
+// Blynk Auth Token
+char auth[] = "u7dwOxKYgNZzGrvAYbLdZF6NAg8L1Z-i";
 
-char auth[] = BLYNK_AUTH_TOKEN;  
-char ssid[] = "vivo 1983";   
+// WiFi credentials
+char ssid[] = "vivo 1983";
 char pass[] = "12345678";
 
+// Soil moisture sensor pin
+const int soilMoisturePin = 34;
+
+// Relay pin
+const int led = 2;
+
+// Threshold value for soil moisture (0-1000)
+const int threshold = 500;
+
 BlynkTimer timer;
-bool isPumpOn = false;  // Track pump status
+bool manualControl = false;
 
-void sendSensorData()
-{
-  int soilMoisture = analogRead(SOIL_MOISTURE_PIN);
-  int soilMoisturePercentage = map(soilMoisture, 3500, 4095, 100, 0);
-  Blynk.virtualWrite(V5, soilMoisturePercentage);
+void setup() {
+  // Start serial communication
+  Serial.begin(115200);
 
-  if (isPumpOn || soilMoisturePercentage < THRESHOLD_MOISTURE)
-  {
-    digitalWrite(PUMP_PIN, HIGH);
-    if (!isPumpOn) {
-      Blynk.logEvent("low_moisture", "Soil moisture is below the threshold!");
-    }
-  }
-  else
-  {
-    if (!isPumpOn) {
-      digitalWrite(PUMP_PIN, LOW);
-    }
-  }
-}
-
-BLYNK_WRITE(PUMP_SWITCH)
-{
-  isPumpOn = param.asInt();
-  Serial.println(isPumpOn ? "Pump manually turned ON" : "Pump manually turned OFF");
-}
-
-void setup()
-{
-  Serial.begin(9600);
-  pinMode(PUMP_PIN, OUTPUT); 
-
+  // Initialize Blynk
   Blynk.begin(auth, ssid, pass);
-  timer.setInterval(3000L, sendSensorData);
-  Blynk.syncVirtual(PUMP_SWITCH);
+
+  // Set relay pin as output
+  pinMode(led, OUTPUT);
+  digitalWrite(led, HIGH);
+
+  // Set up a timer to check soil moisture every second
+  timer.setInterval(1000L, checkSoilMoisture);
 }
 
-void loop()
-{
+void checkSoilMoisture() {
+  if (!manualControl) { // Only check soil moisture if not in manual control mode
+    int soilMoistureValue = analogRead(soilMoisturePin);
+    Serial.print("Soil Moisture Value: ");
+    Serial.println(soilMoistureValue);
+
+    // Send soil moisture value to virtual pin V5
+    Blynk.virtualWrite(V5, soilMoistureValue);
+
+    if (soilMoistureValue < threshold) {
+      // If soil is dry, turn on the pump
+      digitalWrite(led, HIGH);
+      // Blynk.notify("Soil is dry! Turning on the pump.");
+    } else {
+      // If soil is wet, turn off the pump
+      digitalWrite(led, LOW);
+    }
+  }
+}
+
+BLYNK_WRITE(V6) {
+  int pinValue = param.asInt(); // Get the state of the button
+  manualControl = pinValue == 1; // If button is pressed, set manual control to true
+
+  if (manualControl) {
+    digitalWrite(led, HIGH); // Turn on the LED manually
+  } else {
+    digitalWrite(led, LOW); // Turn off the LED manually
+  }
+}
+
+void loop() {
+  // Run Blynk
   Blynk.run();
+
+  // Run timer
   timer.run();
 }
