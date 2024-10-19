@@ -67,7 +67,7 @@ void loop() {
   if(x == 200){
     Serial.println("Data sent to ThingSpeak successfully");
   } else {
-    Serial.println("Error sending data to ThingSpeak");
+    // Serial.println("Error sending data to ThingSpeak");
   }
   
   // Activate buzzer if distance is less than 30 cm
