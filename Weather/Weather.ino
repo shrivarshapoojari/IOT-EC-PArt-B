@@ -32,7 +32,7 @@ void setup() {
   delay(2000);
 
   pinMode(LED_PIN, OUTPUT); // Initialize the LED pin as an output
-  digitalWrite(LED_PIN, HIGH); // Ensure the LED is off initially
+  // digitalWrite(LED_PIN, HIGH); // Ensure the LED is off initially
   Serial.println(F("DHTxx test!"));
 }
 
@@ -66,11 +66,11 @@ void loop() {
   Blynk.virtualWrite(V6, t);  // Send temperature to virtual pin V6
 
   // Blink LED based on blinkSpeed
-  static unsigned long lastMillis = 0;
-  if (millis() - lastMillis >= blinkSpeed) {
-    lastMillis = millis();
-    digitalWrite(LED_PIN, !digitalRead(LED_PIN)); // Toggle LED state
-  }
+  // static unsigned long lastMillis = 0;
+  // if (millis() - lastMillis >= blinkSpeed) {
+  //   lastMillis = millis();
+  //   digitalWrite(LED_PIN, !digitalRead(LED_PIN)); // Toggle LED state
+  // }
 }
 
 BLYNK_WRITE(V2) { // Button Widget is writing to pin V2

@@ -19,7 +19,7 @@ int data;
 void sendSensor() {
   Blynk.virtualWrite(V0, data);
   
-  if (data > 700) {
+  if (data > 1100) {
     Blynk.logEvent("fire_detected", "Fire Detected");
     Serial.println(data);
   } else {

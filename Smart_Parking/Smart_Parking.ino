@@ -3,15 +3,15 @@
 
 
 
-#define WIFI_SSID "realme GT Master Edition"
-#define WIFI_PASSWORD "g7dmxhpk"
-#define FIREBASE_HOST "smart-parking-5ba45-default-rtdb.firebaseio.com"
-#define FIREBASE_AUTH "Mqbnv5XMqN00zAN8AYPD467F7AYyqQ2nueR680dh"
+#define WIFI_SSID "vivo 1983"
+#define WIFI_PASSWORD "12345678"
+#define FIREBASE_HOST "smart-parking-49f0d-default-rtdb.firebaseio.com/"
+#define FIREBASE_AUTH "A0yftHFA7PTvyMX67xKK22Ikx7Ay6muf9Muatkos"
 String FIREBASE_BUCKET = "parking"; 
 
 // Define the GPIO pins for the IR sensors
 #define IR_SENSOR1_PIN 5
-#define IR_SENSOR2_PIN 6
+#define IR_SENSOR2_PIN 4
 
 FirebaseData firebaseData;
 
@@ -42,7 +42,9 @@ void loop() {
   // Read the IR sensor values
   bool spot1Occupied = digitalRead(IR_SENSOR1_PIN);
   bool spot2Occupied = digitalRead(IR_SENSOR2_PIN);
-
+   Serial.println(spot1Occupied);
+   Serial.println(spot2Occupied);
+   
   Firebase.setInt(firebaseData, String(FIREBASE_BUCKET) + "/spot1", spot1Occupied);
   Firebase.setInt(firebaseData, String(FIREBASE_BUCKET) + "/spot2", spot2Occupied);
 
